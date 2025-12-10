@@ -43,8 +43,8 @@ else:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[
-            "https://programacaoiii-front-1.onrender.com",
-            "https://programacaoiii-front-1.onrender.com/",
+            "https://Front_ProgWeb.onrender.com",
+            "https://Front_ProgWeb.onrender.com/",
         ],
         allow_credentials=True,
         allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
