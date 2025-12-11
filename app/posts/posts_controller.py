@@ -2,8 +2,8 @@
 from fastapi import APIRouter, Depends, UploadFile, Form
 from sqlalchemy.orm import Session
 from database import get_db
-from security import get_current_user
-from posts_service import create_new_post, get_feed
+from ..auth.auth_service import get_current_user
+from .posts_service import create_new_post, get_feed
 
 router = APIRouter(prefix="/posts", tags=["Posts"])
 

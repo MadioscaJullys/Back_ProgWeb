@@ -3,7 +3,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from pydantic import BaseModel, EmailStr, Field, ConfigDict, field_validator
 from database import Base
-from roles.role_model import RolePublic # Importa o schema público de Role
+from ..roles.role_model import RolePublic # Importa o schema público de Role
 from typing import Optional
 
 # ==================================

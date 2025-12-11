@@ -1,8 +1,8 @@
 from fastapi import UploadFile
 from sqlalchemy.orm import Session
-from posts_model import Post
-from posts_repository import create_post, list_posts_by_city, list_all_posts
-from app.utils.image_processor import save_image
+from .posts_model import Post
+from .posts_repository import create_post, list_posts_by_city, list_all_posts
+from ..utils.image_processor import save_image
 
 def create_new_post(db: Session, user_id: int, title: str, description: str, city: str, image: UploadFile):
     

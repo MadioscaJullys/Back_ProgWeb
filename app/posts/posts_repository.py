@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from posts_model import Post
+from .posts_model import Post
 
 def create_post(db: Session, post: Post):
     db.add(post)

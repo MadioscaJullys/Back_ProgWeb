@@ -3,7 +3,7 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from . import user_repository, user_model
-from utils.image_processor import process_image_base64
+from ..utils.image_processor import process_image_base64
 
 def create_new_user(db: Session, user: user_model.UserCreate):
     db_user = user_repository.get_user_by_email(db, email=user.email)

@@ -4,6 +4,9 @@ import re
 import io
 from typing import Tuple, Optional
 from PIL import Image
+import os
+import uuid
+from fastapi import UploadFile
 
 def parse_data_url(data_url: str) -> Tuple[str, bytes]:
     """
@@ -175,3 +178,22 @@ def get_image_info(data_url: Optional[str]) -> dict:
         }
     except:
         return {"type": "unknown", "size": 0, "format": "unknown"}
+
+
+def save_image(upload_file: UploadFile, dest_dir: str = "uploads") -> str:
+    """
+    Save an UploadFile to `dest_dir` and return the relative path.
+    This is a minimal helper used by the posts service during development.
+    """
+    try:
+        os.makedirs(dest_dir, exist_ok=True)
+        ext = os.path.splitext(upload_file.filename or "")[1] or ".jpg"
+        filename = f"{uuid.uuid4().hex}{ext}"
+        path = os.path.join(dest_dir, filename)
+        # Ensure file pointer is at start
+        upload_file.file.seek(0)
+        with open(path, "wb") as f:
+            f.write(upload_file.file.read())
+        return path
+    except Exception as e:
+        raise ValueError(f"Erro ao salvar imagem: {e}")
