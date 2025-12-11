@@ -7,6 +7,9 @@ from .posts_service import create_new_post, get_feed
 
 router = APIRouter(prefix="/posts", tags=["Posts"])
 
+# Accept both "/posts" and "/posts/" to avoid redirects that can
+# trigger CORS/preflight issues in some browsers.
+@router.post("")
 @router.post("/")
 def create_post(
     title: str = Form(...),
@@ -19,9 +22,10 @@ def create_post(
     return create_new_post(db, user.id, title, description, city, image)
 
 
+@router.get("")
 @router.get("/")
-def list_posts(
-    city: str | None = None,
-    db: Session = Depends(get_db)
-):
+@router.get("/feed")
+def list_posts(city: str | None = None, db: Session = Depends(get_db)):
     return get_feed(db, city)
+
+

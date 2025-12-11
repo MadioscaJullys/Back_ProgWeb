@@ -1,6 +1,6 @@
 
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os 
 
@@ -10,14 +10,10 @@ APP_PROFILE = os.getenv("APP_PROFILE", "DEV")
 # For local development default to a lightweight SQLite DB so you don't need
 # a running Postgres instance.
 DATABASE_URL_ENV = os.getenv("DATABASE_URL")
-# In development we force SQLite to avoid accidental use of a remote/local
-# Postgres instance defined in the environment. This ensures a reproducible
-# local dev database (`dev.db`). To use Postgres, set APP_PROFILE != "DEV"
-# and provide a valid DATABASE_URL.
-if APP_PROFILE == "DEV":
-    SQLALCHEMY_DATABASE_URL = "postgresql://postgres:1234carlinhos!@5.161.88.20/jully_progwebIII"
-else:
-    SQLALCHEMY_DATABASE_URL = DATABASE_URL_ENV
+
+# Default to the project's Postgres instance unless DATABASE_URL overrides it.
+DEFAULT_POSTGRES = "postgresql://postgres:1234carlinhos!@5.161.88.20/jully_progwebIII"
+SQLALCHEMY_DATABASE_URL = DATABASE_URL_ENV or DEFAULT_POSTGRES
 
 # 1. Define a string de conexão com o banco PostgreSQL.
 #    Formato: "postgresql://<user>:<password>@<host>/<dbname>"

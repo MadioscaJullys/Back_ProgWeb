@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, ForeignKey, DateTime
+from sqlalchemy import Column, String, Integer, ForeignKey, DateTime, Text
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from database import Base
@@ -14,7 +14,11 @@ class Post(Base):
 
     city = Column(String(100), nullable=False)
 
+    # Store either a path to the uploaded file or a Data URL containing
+    # metadata (e.g. "data:image/jpeg;base64,..."). The front-end prefers
+    # metadata so it can decode reliably.
     image_path = Column(String(255), nullable=True)
+    image_data_url = Column(Text, nullable=True)
 
     created_at = Column(DateTime, default=datetime.utcnow)
 

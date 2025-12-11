@@ -197,3 +197,46 @@ def save_image(upload_file: UploadFile, dest_dir: str = "uploads") -> str:
         return path
     except Exception as e:
         raise ValueError(f"Erro ao salvar imagem: {e}")
+
+
+def uploadfile_to_data_url(upload_file: UploadFile) -> str:
+    """
+    Convert an UploadFile to a Data URL (e.g. 'data:image/jpeg;base64,...').
+    Handles AVIF/heif by converting to JPEG when necessary.
+    """
+    try:
+        # read bytes
+        upload_file.file.seek(0)
+        data = upload_file.file.read()
+
+        # try to get mime from UploadFile if present
+        mime_type = getattr(upload_file, 'content_type', None) or None
+
+        # If mime is missing, try to detect via PIL
+        if not mime_type:
+            try:
+                img = Image.open(io.BytesIO(data))
+                fmt = (img.format or '').upper()
+                if fmt == 'JPEG':
+                    mime_type = 'image/jpeg'
+                elif fmt == 'PNG':
+                    mime_type = 'image/png'
+                elif fmt == 'WEBP':
+                    mime_type = 'image/webp'
+                else:
+                    mime_type = f'image/{fmt.lower()}' if fmt else 'application/octet-stream'
+            except Exception:
+                # Fallback to binary/octet
+                mime_type = 'application/octet-stream'
+
+        # Convert unsupported formats (AVIF/HEIF) to JPEG bytes + updated mime
+        try:
+            converted_bytes, final_mime = convert_unsupported_format(data, mime_type)
+        except ValueError as e:
+            raise ValueError(f"Erro ao processar imagem: {e}")
+
+        # Build Data URL
+        b64 = base64.b64encode(converted_bytes).decode('utf-8')
+        return f"data:{final_mime};base64,{b64}"
+    except Exception as e:
+        raise ValueError(f"Erro ao converter upload para Data URL: {e}")
