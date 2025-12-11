@@ -14,6 +14,7 @@ from database import engine, Base
 from users import user_controller
 from roles import role_controller  
 from auth import auth_controller
+from posts import posts_controller
 
 # Configuração baseada no ambiente
 APP_PROFILE = os.getenv("APP_PROFILE", "DEV")
@@ -55,6 +56,7 @@ else:
 app.include_router(user_controller.router)
 app.include_router(role_controller.router)
 app.include_router(auth_controller.router)
+app.include_router(posts_controller.router)
 
 # 4. Código para rodar o servidor
 if __name__ == '__main__':

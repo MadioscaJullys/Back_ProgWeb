@@ -6,10 +6,18 @@ import os
 
 APP_PROFILE = os.getenv("APP_PROFILE", "DEV")
 
+# Prefer a DATABASE_URL from environment when present (useful in CI/Prod).
+# For local development default to a lightweight SQLite DB so you don't need
+# a running Postgres instance.
+DATABASE_URL_ENV = os.getenv("DATABASE_URL")
+# In development we force SQLite to avoid accidental use of a remote/local
+# Postgres instance defined in the environment. This ensures a reproducible
+# local dev database (`dev.db`). To use Postgres, set APP_PROFILE != "DEV"
+# and provide a valid DATABASE_URL.
 if APP_PROFILE == "DEV":
     SQLALCHEMY_DATABASE_URL = "postgresql://postgres:1234carlinhos!@5.161.88.20/jully_progwebIII"
 else:
-    SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
+    SQLALCHEMY_DATABASE_URL = DATABASE_URL_ENV
 
 # 1. Define a string de conexão com o banco PostgreSQL.
 #    Formato: "postgresql://<user>:<password>@<host>/<dbname>"
@@ -18,7 +26,14 @@ else:
 
 # 2. Cria a "engine" do SQLAlchemy, que é o ponto de entrada para o banco de dados.
 #    Ela gerencia as conexões com o banco.
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+if SQLALCHEMY_DATABASE_URL is None:
+    raise RuntimeError("No database URL configured. Set DATABASE_URL or APP_PROFILE accordingly.")
+
+# When using SQLite we need connect_args to allow usage from multiple threads
+if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
+    engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+else:
+    engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
 # 3. Cria uma fábrica de sessões (SessionLocal). Cada instância de SessionLocal
 #    será uma sessão com o banco de dados. Pense nela como uma "conversa" temporária.

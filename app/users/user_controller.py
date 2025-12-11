@@ -10,7 +10,6 @@ from auth.auth_service import get_current_user
 router = APIRouter(
     prefix="/users",
     tags=["Users"],
-    dependencies=[Depends(get_current_user)]
 )
 
 @router.post("/", response_model=user_model.UserPublic, status_code=status.HTTP_201_CREATED)
@@ -20,22 +19,22 @@ def create_user(user: user_model.UserCreate, db: Session = Depends(get_db)):
     return user_service.create_new_user(db=db, user=user)
 
 @router.get("/", response_model=List[user_model.UserPublic])
-def read_users(db: Session = Depends(get_db)):
+def read_users(db: Session = Depends(get_db), _=Depends(get_current_user)):
     """Endpoint para listar todos os usuários."""
     return user_service.get_all_users(db)
 
 @router.get("/{user_id}", response_model=user_model.UserPublic)
-def read_user(user_id: int, db: Session = Depends(get_db)):
+def read_user(user_id: int, db: Session = Depends(get_db), _=Depends(get_current_user)):
     """Endpoint para buscar um usuário pelo ID."""
     return user_service.get_user_by_id(db, user_id=user_id)
 
 @router.put("/{user_id}", response_model=user_model.UserPublic)
-def update_user(user_id: int, user: user_model.UserUpdate, db: Session = Depends(get_db)):
+def update_user(user_id: int, user: user_model.UserUpdate, db: Session = Depends(get_db), _=Depends(get_current_user)):
     """Endpoint para atualizar um usuário."""
     return user_service.update_existing_user(db=db, user_id=user_id, user_in=user)
 
 @router.delete("/{user_id}", response_model=user_model.UserPublic)
-def delete_user(user_id: int, db: Session = Depends(get_db)):
+def delete_user(user_id: int, db: Session = Depends(get_db), _=Depends(get_current_user)):
     """Endpoint para deletar um usuário."""
     # Busca o usuário antes de excluir, garantindo que o relacionamento role está carregado
     user_to_delete = user_service.get_user_by_id(db, user_id)
