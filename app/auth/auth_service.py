@@ -40,7 +40,20 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 
 def require_role(required_role_name: str):
     def role_checker(current_user: User = Depends(get_current_user)):
-        if not current_user.role or current_user.role.name != required_role_name:
+        # Be tolerant with role name variants (case-insensitive, abbreviations)
+        role_obj = getattr(current_user, "role", None)
+        role_name = getattr(role_obj, "name", None) if role_obj else None
+        if not role_name:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Operation not permitted for this user role"
+            )
+
+        r = role_name.lower()
+        req = required_role_name.lower()
+
+        # Accept exact match, contained/starts-with variants (e.g. 'adm' vs 'admin')
+        if not (r == req or r.startswith(req) or req.startswith(r) or req in r or r in req):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Operation not permitted for this user role"
